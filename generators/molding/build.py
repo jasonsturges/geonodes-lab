@@ -145,7 +145,7 @@ def walls_group(height, thickness, plaster):
     G.link(section, run.inputs['Section'])
     run.inputs['Crown'].default_value = False
     run.inputs['Outward'].default_value = True
-    G.link(G.material(run.outputs[0], plaster), G.o['Geometry'])
+    G.link(G.shade(G.material(run.outputs[0], plaster)), G.o['Geometry'])   # flat: walls are planes
     G.layout()
     return G.g
 

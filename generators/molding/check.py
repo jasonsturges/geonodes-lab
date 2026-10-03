@@ -131,6 +131,27 @@ def poly(name, points, closed):
     return obj
 
 
+def straight_bezier(name, points, closed):
+    """The plan as a Bézier whose handles sit on its sides: straight walls, many evaluated points."""
+    curve = bpy.data.curves.new(name + ' (Bézier)', 'CURVE')
+    curve.dimensions = '3D'
+    spline = curve.splines.new('BEZIER')
+    spline.resolution_u = 16
+    spline.bezier_points.add(len(points) - 1)
+    count = len(points)
+    for k, (p, (x, y)) in enumerate(zip(spline.bezier_points, points)):
+        p.co = (x, y, 0)
+        p.handle_left_type = p.handle_right_type = 'FREE'
+        (px, py) = points[(k - 1) % count] if closed or k > 0 else (2 * x - points[1][0], 2 * y - points[1][1])
+        (nx, ny) = points[(k + 1) % count] if closed or k < count - 1 else (2 * x - points[-2][0], 2 * y - points[-2][1])
+        p.handle_left = (x + (px - x) / 3, y + (py - y) / 3, 0)
+        p.handle_right = (x + (nx - x) / 3, y + (ny - y) / 3, 0)
+    spline.use_cyclic_u = closed
+    obj = bpy.data.objects.new(name + ' (Bézier)', curve)
+    bpy.context.scene.collection.objects.link(obj)
+    return obj
+
+
 def miters(points, closed):
     """Oracle: each point's offset direction n (unit, bisecting the turn) and widening k = 1/cos(turn/2)."""
     out = []
@@ -205,6 +226,12 @@ def verify_run():
                 expected_volume = abs(area_) * sum(math.dist(a, b) for a, b in pairs)
                 assert mesh.volume > 0 and abs(mesh.volume - expected_volume) < 1e-6 + expected_volume * 1e-5, \
                     (label, mesh.volume, expected_volume)
+                cases += 1
+                # The same plan as a Bézier with straight segments (16 evaluated points per side) must give
+                # exactly the poly result: collinear stations are dropped, so no inside miter can fold.
+                mesh_b = evaluate_object(obj, {**settings, 'Path': straight_bezier(name, points, closed)})
+                assert len(mesh_b.verts) == len(mesh.verts) and abs(mesh_b.volume - mesh.volume) < 1e-7, \
+                    (label, 'Bézier', len(mesh_b.verts), len(mesh.verts), mesh_b.volume, mesh.volume)
                 cases += 1
     # A Bézier path (evaluated points), and one path object holding two separate runs.
     bez = bpy.data.curves.new('bay', 'CURVE')

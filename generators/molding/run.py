@@ -4,7 +4,8 @@ Origin: three-low-poly `MoldingGeometry` (crown or base, inward or outward facin
 its `miterFrames`; the NodesLab prototype's studies 022–024 (corners, polygons, Bézier runs).
 
 How it works
-  1. The path (any curve: poly, Bézier, NURBS) is resampled to its evaluated points.
+  1. The path (any curve: poly, Bézier, NURBS) is resampled to its evaluated points, keeping only the
+     points where it turns (so an inside corner's miter never overshoots a nearby station and folds).
   2. At each point, the wall's inward side is perp(d) = (−dy, dx) of the direction d. At a corner, the
      section lies on the plane bisecting the turn: its offset direction n is the normalized sum of the
      two neighbouring perps, and the section is widened by k = 1 / cos(turn / 2) = 1 / (n · perp(d_in)).
@@ -34,27 +35,45 @@ def run_group():
     path.inputs['Mode'].default_value = 'Evaluated'
     G.link(i['Path'], path.inputs['Curve'])
     path = path.outputs[0]
-    # Neighbours within each spline (a path may hold several separate runs).
-    spline = G.n('GeometryNodeCurveOfPoint', 'Which spline')
-    first = G.n('GeometryNodePointsOfCurve', 'Spline start and length')
-    G.link(spline.outputs['Curve Index'], first.inputs['Curve Index'])
-    start, n_points = first.outputs['Point Index'], first.outputs['Total']
-    local = spline.outputs['Index in Curve']
-    cyclic = G.n('GeometryNodeInputSplineCyclic', 'Closed?').outputs[0]
-    last = G.sub(n_points, 1)
-    wrap_prev = G.m('FLOORED_MODULO', G.sub(local, 1), n_points)
-    wrap_next = G.m('FLOORED_MODULO', G.add(local, 1), n_points)
-    prev = G.at(G.position(), G.add(start, G.switch('FLOAT', cyclic, G.hi(G.sub(local, 1), 0), wrap_prev)))
-    nxt = G.at(G.position(), G.add(start, G.switch('FLOAT', cyclic, G.lo(G.add(local, 1), last), wrap_next)))
-    pos = G.position()
 
-    def flat_dir(a, b):
-        x, y, _ = G.sep(G.v('SUBTRACT', b, a))
-        return G.v('NORMALIZE', G.xyz(x, y, 0))
-    d_in, d_out = flat_dir(prev, pos), flat_dir(pos, nxt)
-    # An open run's ends have only one neighbour: use the direction that exists (a square cut).
-    d_in = G.switch('VECTOR', G.m('LESS_THAN', G.v('LENGTH', d_in), .5), d_in, d_out)
-    d_out = G.switch('VECTOR', G.m('LESS_THAN', G.v('LENGTH', d_out), .5), d_out, d_in)
+    def directions():
+        """Fields: the flat directions in and out of each point, from its neighbours in the same spline
+        (a path may hold several runs), wrapping on closed splines; and whether it is an open run's end."""
+        spline = G.n('GeometryNodeCurveOfPoint', 'Which spline')
+        first = G.n('GeometryNodePointsOfCurve', 'Spline start and length')
+        G.link(spline.outputs['Curve Index'], first.inputs['Curve Index'])
+        start, n_points = first.outputs['Point Index'], first.outputs['Total']
+        local = spline.outputs['Index in Curve']
+        cyclic = G.n('GeometryNodeInputSplineCyclic', 'Closed?').outputs[0]
+        last = G.sub(n_points, 1)
+        wrap_prev = G.m('FLOORED_MODULO', G.sub(local, 1), n_points)
+        wrap_next = G.m('FLOORED_MODULO', G.add(local, 1), n_points)
+        prev = G.at(G.position(), G.add(start, G.switch('FLOAT', cyclic, G.hi(G.sub(local, 1), 0), wrap_prev)))
+        nxt = G.at(G.position(), G.add(start, G.switch('FLOAT', cyclic, G.lo(G.add(local, 1), last), wrap_next)))
+        here = G.position()
+
+        def flat_dir(a, b):
+            x, y, _ = G.sep(G.v('SUBTRACT', b, a))
+            return G.v('NORMALIZE', G.xyz(x, y, 0))
+        d_in, d_out = flat_dir(prev, here), flat_dir(here, nxt)
+        # An open run's ends have only one neighbour: use the direction that exists (a square cut).
+        d_in = G.switch('VECTOR', G.m('LESS_THAN', G.v('LENGTH', d_in), .5), d_in, d_out)
+        d_out = G.switch('VECTOR', G.m('LESS_THAN', G.v('LENGTH', d_out), .5), d_out, d_in)
+        is_end = G.m('MULTIPLY', G.sub(1, cyclic), G.m('MAXIMUM', G.m('COMPARE', local, 0), G.m('COMPARE', local, last)))
+        return d_in, d_out, is_end
+
+    # Keep a station only where the path turns. A straight wall evaluates to many collinear points, and an
+    # INSIDE corner's miter carries the section forward by projection · tan(turn / 2): any station closer
+    # than that would be overshot and the strip would fold back on itself. Collinear points carry no
+    # shape, so each straight wall becomes one span, corner to corner; curves keep all their points.
+    d_in, d_out, is_end = directions()
+    straight = G.m('GREATER_THAN', G.v('DOT_PRODUCT', d_in, d_out), 1 - 1e-6)
+    drop = G.n('GeometryNodeDeleteGeometry', 'Drop collinear points', domain='POINT')
+    G.link(path, drop.inputs['Geometry'])
+    G.link(G.m('MULTIPLY', straight, G.sub(1, is_end)), drop.inputs['Selection'])
+    path = drop.outputs[0]
+    d_in, d_out, _ = directions()
+    pos = G.position()
 
     def perp(d):
         x, y, _ = G.sep(d)

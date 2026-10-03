@@ -12,7 +12,7 @@ any section along any curve, every corner mitered exactly. Origin: three-low-pol
 
 ```sh
 python3 scripts/build.py molding --render
-python3 scripts/check.py molding        # 92 section cases against SDK fixtures, 43 Molding Run cases
+python3 scripts/check.py molding        # 92 section cases against SDK fixtures, 73 Molding Run cases
 ```
 
 Modules: `profiles.py` (the named sections), `molding.py` (the straight piece), `run.py` (Molding Run), and `graph.py` (this family's
@@ -80,7 +80,10 @@ an open L, a chimney breast, and 30° and 120° turns) × Crown / Base / Chair R
 cycling through the sections. An independent oracle recomputes each point's miter in plain Python: every
 predicted vertex must exist in the mesh, the vertex count must be path points × section points, and the
 volume must equal section area × the length of its centroid line (exact for a chain of mitered prisms).
-A Bézier path, a two-spline path and the no-path sample room are checked for watertight, outward shells.
+Each plan is also drawn as a Bézier with straight sides (16 evaluated points per side) and must give
+exactly the poly result, point for point: this catches a folded inside miter, which a volume check alone
+misses (a fold's signed volume cancels). A curved Bézier, a two-spline path and the no-path sample room
+are checked for watertight, outward shells.
 
 
 ## Molding Run
@@ -102,7 +105,10 @@ for any section. As in the SDK, an inside corner is mitered, not coped (these wa
 **How it works** (open the **GNL • Molding Run** group to follow along):
 
 1. **Resample Curve** (Evaluated) turns any path into its evaluated points: corners stay sharp, and a
-   Bézier gives as many points as its resolution.
+   Bézier gives as many points as its resolution. Then **Delete Geometry** drops every point where the
+   path doesn't turn, so a straight wall is one span, corner to corner. This matters: an inside corner's
+   miter carries the section forward by projection · tan(turn / 2), and a station closer than that
+   (a Bézier puts 16 on every side) would be overshot, folding the strip back over itself.
 2. At each point, **Field at Index** fetches the previous and next point *within the same spline*
    (Curve of Point / Points of Curve), wrapping on closed splines. The perpendiculars of the incoming and
    outgoing directions are averaged into the **miter direction n**, and the section is widened by
