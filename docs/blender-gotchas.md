@@ -35,3 +35,5 @@ Each lesson here cost real debugging time and was confirmed by a check. Blender 
 | --- | --- |
 | Material Preview lights scenes with a built-in forest HDRI, which glass and metal reflect | Shading popover → **Scene World** and **Scene Lights** (our scenes set this) |
 | EEVEE's screen-space refraction dims what's seen through two layers of glass | Use Cycles (**Rendered**) to judge glass |
+| Dark wedges at a swept molding's **inside** corners only: a Bézier puts many stations on a straight side, and the miter (reaching projection · tan(turn / 2) forward) overshoots them, folding the strip | Drop collinear points before sweeping (Molding Run does). A volume check misses it, since a fold's signed volume cancels; compare point counts with a poly version of the path |
+| Extrude Mesh's **Offset** ignores a value typed into the unlinked socket from Python (it's an implicit normals field) | Link a Combine XYZ into it |
