@@ -1,5 +1,6 @@
 """Independent checks for assets/Molding.blend: every named section against sampled three-low-poly
-profile fixtures (sdk-reference.json), exact extrusion volumes, UVs and crown/base orientation.
+profile fixtures (sdk-reference.json), exact extrusion volumes, UVs and crown/base orientation; and
+Molding Run against an independent miter oracle (three-low-poly MoldingGeometry: bisecting-plane joints).
 Run: python3 scripts/check.py molding
 """
 from pathlib import Path
@@ -107,5 +108,131 @@ def main():
     print(f'Molding: {len(report)} profile/mode cases passed, plus reed variation and an independent host')
 
 
+# --- Molding Run ---------------------------------------------------------------------------------------
+PLANS = {   # name: (points, closed). Anticlockwise rooms, so Inward is the room side.
+    'rectangle room': ([(-2, -1.5), (2, -1.5), (2, 1.5), (-2, 1.5)], True),
+    'triangle': ([(0, 0), (3, 0), (1, 2)], True),
+    'open L': ([(0, 0), (2, 0), (2, 1.5)], False),
+    'chimney breast': ([(0, 0), (1, 0), (1, .4), (1.8, .4), (1.8, 0), (3, 0)], False),
+    'shallow 30° and sharp 120°': ([(0, 0), (1.5, 0), (2.8, .75), (2.2, 1.9)], False),
+}
+
+
+def poly(name, points, closed):
+    curve = bpy.data.curves.new(name, 'CURVE')
+    curve.dimensions = '3D'
+    spline = curve.splines.new('POLY')
+    spline.points.add(len(points) - 1)
+    for p, (x, y) in zip(spline.points, points):
+        p.co = (x, y, 0, 1)
+    spline.use_cyclic_u = closed
+    obj = bpy.data.objects.new(name, curve)
+    bpy.context.scene.collection.objects.link(obj)
+    return obj
+
+
+def miters(points, closed):
+    """Oracle: each point's offset direction n (unit, bisecting the turn) and widening k = 1/cos(turn/2)."""
+    out = []
+    count = len(points)
+    for i, (x, y) in enumerate(points):
+        dirs = []
+        for a, b in ((i - 1, i), (i, i + 1)):
+            if not closed and (a < 0 or b >= count):
+                continue
+            (ax, ay), (bx, by) = points[a % count], points[b % count]
+            length = math.hypot(bx - ax, by - ay)
+            dirs.append(((bx - ax) / length, (by - ay) / length))
+        perps = [(-dy, dx) for dx, dy in dirs]
+        nx, ny = sum(p[0] for p in perps), sum(p[1] for p in perps)
+        norm = math.hypot(nx, ny)
+        n = (nx / norm, ny / norm)
+        k = 1 / (n[0] * perps[0][0] + n[1] * perps[0][1])
+        out.append((n, k))
+    return out
+
+
+def section_points(group, settings):
+    from authoring.checking import evaluate_group
+    mesh = evaluate_group(group, settings, as_points=True)
+    return [(x, y) for x, y, _ in mesh.verts]
+
+
+def verify_run():
+    from authoring.checking import fresh_session_with, evaluate_object
+    from mathutils.kdtree import KDTree
+    loaded = fresh_session_with('Molding.blend', objects=['GNL • Molding Run'])
+    obj = loaded['GNL • Molding Run']
+    corner_styles = ['Cove', 'Ovolo', 'Chamfer', 'Ogee', 'Cyma', 'Scotia', 'Fillet', 'Step']
+    cases = 0
+    for p_index, (name, (points, closed)) in enumerate(PLANS.items()):
+        path = poly(name, points, closed)
+        frames = miters(points, closed)
+        for r_index, run in enumerate(('Crown', 'Base', 'Chair Rail')):
+            for outward in (False, True):
+                style = corner_styles[(p_index * 6 + r_index * 2 + outward) % 8] if run != 'Chair Rail' else 'Astragal'
+                size = {'Height': .14, 'Projection': .09, 'Segments': 5}
+                settings = {'Path': path, 'Run': run, 'Outward': outward, **size,
+                            ('Surface Profile' if run == 'Chair Rail' else 'Corner Profile'): style}
+                mesh = evaluate_object(obj, settings)
+                group = 'GNL • Surface Molding Profile' if run == 'Chair Rail' else 'GNL • Corner Molding Profile'
+                section = section_points(group, {'Profile': style, **size})
+                label = (name, run, 'outward' if outward else 'inward', style)
+                assert mesh.closed and len(mesh.islands) == 1, label
+                assert len(mesh.verts) == len(points) * len(section), (label, len(mesh.verts))
+                assert 'UVMap' in mesh.uv_layers, label
+                # Every vertex where the oracle puts it: path point + side·k·n·projection, height down or up.
+                tree = KDTree(len(mesh.verts))
+                for k_, v in enumerate(mesh.verts):
+                    tree.insert(v, k_)
+                tree.balance()
+                side = -1 if outward else 1
+                up = -1 if run == 'Crown' else 1
+                for (px, py), ((nx, ny), k) in zip(points, frames):
+                    for h, p in section:
+                        expected = (px + side * k * nx * p, py + side * k * ny * p, up * h)
+                        _, _, distance = tree.find(expected)
+                        assert distance < 1e-5, (label, expected, distance)
+                # Volume: section area × the length of its centroid line (exact for a mitered prism chain).
+                area_, centroid = 0, 0
+                for (h0, p0), (h1, p1) in zip(section, section[1:] + section[:1]):
+                    cross = h0 * p1 - h1 * p0
+                    area_ += cross / 2
+                    centroid += (p0 + p1) * cross / 6
+                c = centroid / area_
+                ring = [(px + side * k * nx * c, py + side * k * ny * c) for (px, py), ((nx, ny), k) in zip(points, frames)]
+                pairs = list(zip(ring, ring[1:] + ring[:1])) if closed else list(zip(ring, ring[1:]))
+                expected_volume = abs(area_) * sum(math.dist(a, b) for a, b in pairs)
+                assert mesh.volume > 0 and abs(mesh.volume - expected_volume) < 1e-6 + expected_volume * 1e-5, \
+                    (label, mesh.volume, expected_volume)
+                cases += 1
+    # A Bézier path (evaluated points), and one path object holding two separate runs.
+    bez = bpy.data.curves.new('bay', 'CURVE')
+    bez.dimensions = '3D'
+    spline = bez.splines.new('BEZIER')
+    spline.bezier_points.add(3)
+    for p, co in zip(spline.bezier_points, [(0, 0, 0), (1, .6, 0), (2, -.2, 0), (3, .5, 0)]):
+        p.co = co
+        p.handle_left_type = p.handle_right_type = 'AUTO'
+    two = poly('two runs', [(0, 0), (1, 0)], False)
+    extra = two.data.splines.new('POLY')
+    extra.points.add(2)
+    for p, (x, y) in zip(extra.points, [(0, 1), (1, 1), (1, 2)]):
+        p.co = (x, y, 0, 1)
+    for path, islands in ((bpy.data.objects.new('bay', bez), 1), (two, 2)):
+        if path.name not in bpy.context.scene.objects:
+            bpy.context.scene.collection.objects.link(path)
+        for run in ('Crown', 'Base', 'Chair Rail'):
+            for outward in (False, True):
+                mesh = evaluate_object(obj, {'Path': path, 'Run': run, 'Outward': outward})
+                assert mesh.closed and mesh.volume > 0 and len(mesh.islands) == islands, (path.name, run, outward)
+                cases += 1
+    # No path chosen: the sample room keeps a freshly appended object visible.
+    mesh = evaluate_object(obj, {'Path': None})
+    assert mesh.closed and mesh.volume > 0
+    print(f'Molding Run: {cases + 1} path cases passed against the miter oracle')
+
+
 if __name__ == '__main__':
     main()
+    verify_run()

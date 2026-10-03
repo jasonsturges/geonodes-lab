@@ -16,8 +16,9 @@ def wants_render():
     return '--render' in sys.argv
 
 
-def save_scene(path, *, readme=None, readme_title='READ ME', render=False):
-    """Save the current scene (embedding its README as a text block) and optionally render preview.png."""
+def save_scene(path, *, readme=None, readme_title='READ ME', render=False, preview='preview.png'):
+    """Save the current scene (embedding its README as a text block) and optionally render `preview`
+    beside it (a second example in one folder uses e.g. 'room-preview.png')."""
     require_background()
     path = Path(path)
     if readme is not None and Path(readme).exists():
@@ -26,7 +27,7 @@ def save_scene(path, *, readme=None, readme_title='READ ME', render=False):
     if render:
         scene = bpy.context.scene
         use_gpu(scene)
-        scene.render.filepath = str(path.parent / 'preview.png')
+        scene.render.filepath = str(path.parent / preview)
         bpy.ops.render.render(write_still=True)
 
 

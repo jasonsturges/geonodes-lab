@@ -11,7 +11,7 @@ ported from the NodesLab prototype onto the [authoring patterns](authoring.md).
 | [Masonry](../generators/masonry/README.md) | `Masonry.blend` | Brick Pier | Brick Pier (with a Top output); 4 materials | website graveyard `BrickPierGeometry.ts` (three-low-poly `QuoinStackGeometry`) |
 | [Fences](../generators/fences/README.md) | `Fences.blend` | Rustic Fence, Iron Fence, Gateway | Path Stations, Rustic Fence, Iron Fence, Gateway (Hewn Timber, Panel, Post, Overthrow, Brick Pier travel inside) | three-low-poly `RusticFence`; website graveyard `Enclosure.ts`, `Gateway.ts` |
 | [Windows](../generators/windows/README.md) | `Windows.blend` | Diamond Lattice, Gregorian Lattice, Window Pane, Diamond Window, Gregorian Window | the same, plus Opening Profile, Window Frame, Opening Boundary Offset | three-low-poly `ArchProfile.ts`, `DiamondLatticeWindow`, `GregorianLatticeWindow` |
-| [Molding](../generators/molding/README.md) | `Molding.blend` | Corner Molding, Surface Molding | the same, plus Corner / Surface Molding Profile | three-low-poly `MoldingProfiles.ts`, `SurfaceProfiles.ts` |
+| [Molding](../generators/molding/README.md) | `Molding.blend` | Corner Molding, Surface Molding, Molding Run | the same, plus Corner / Surface Molding Profile | three-low-poly `MoldingProfiles.ts`, `SurfaceProfiles.ts`, `MoldingGeometry` |
 | [Floors](../generators/floors/README.md) | `Floors.blend` | Hardwood Floor | Hardwood Floor (Floor Laying and Resolve Floor Offcuts inside) | three-low-poly `HardwoodFloor` |
 
 ## Planned

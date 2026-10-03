@@ -1,7 +1,7 @@
 """Make small committed preview.jpg images from the full-size (ignored) preview.png renders.
 
 Run with system Python on macOS: python3 scripts/previews.py
-Builders render preview.png; this writes a 1280px-wide JPEG beside each one so READMEs and
+Builders render preview.png (or e.g. room-preview.png); this writes a 1280px-wide JPEG beside each one so READMEs and
 GitHub can show it without committing multi-megabyte PNGs. Uses macOS `sips`.
 """
 from pathlib import Path
@@ -18,7 +18,7 @@ def main():
     if not shutil.which('sips'):
         sys.exit('sips not found: this helper uses macOS image tools')
     total = 0
-    for png in sorted(ROOT.glob('*/**/preview.png')):
+    for png in sorted(ROOT.glob('*/**/*preview.png')):
         if 'renders' in png.parts:
             continue
         jpg = png.with_suffix('.jpg')

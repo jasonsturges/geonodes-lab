@@ -4,5 +4,5 @@ __pycache__/
 # Blender's automatic backups
 *.blend[0-9]*
 # Full-size renders stay local; scripts/previews.py writes the small committed preview.jpg
-**/preview.png
+**/*preview.png
 scratch/
