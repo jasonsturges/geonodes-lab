@@ -29,6 +29,7 @@ Libraries) and drag items in from the Asset Browser. Full walkthrough:
 | [Timber](generators/timber/README.md) | `Timber.blend` | A rough-sawn plank and an axe-hewn log: seeded, warped (bow, crook, cup, twist), grain that follows the wood |
 | [Ironwork](generators/ironwork/README.md) | `Ironwork.blend` | Pickets, posts, panels with fitted rings, forged scrolls, twisted bars, fleur-de-lis, ivy vines, and the gateway overthrow; seeded derelict decay |
 | [Masonry](generators/masonry/README.md) | `Masonry.blend` | A brick pier laid course by course: stretcher bond, cut closers, alternating stone quoins, plinth and cap; seeded decay |
+| [Fences](generators/fences/README.md) | `Fences.blend` | Rustic and iron fences that follow any curve and settle onto your terrain, and a full gateway; one Ruin control |
 
 Every family has a ready-to-use **object**, the **node groups** behind it (for building your own
 graphs), a **gallery scene** in [`examples/`](examples/), and a **How it works** section in its README.

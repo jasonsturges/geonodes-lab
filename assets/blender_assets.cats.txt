@@ -4,3 +4,4 @@ efe99ded-1ffe-5c28-8b94-95b6686023e3:GeoNodes Lab/Vessels:Vessels
 72c89eb9-2b37-5acd-b8da-725eece23539:GeoNodes Lab/Timber:Timber
 56179da0-9bc2-5976-bdfb-727f4ce3f4bc:GeoNodes Lab/Ironwork:Ironwork
 fc23db6f-3add-5891-bd70-b677ca884dcd:GeoNodes Lab/Masonry:Masonry
+5457cd23-0a36-5f37-a7c5-9a3f38e28fbb:GeoNodes Lab/Fences:Fences
