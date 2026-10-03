@@ -7,15 +7,14 @@ ported from the NodesLab prototype onto the [authoring patterns](authoring.md).
 | --- | --- | --- | --- | --- |
 | [Vessels](../generators/vessels/README.md) | `Vessels.blend` | Florence Flask, Erlenmeyer Flask, Test Tube, Graduated Cylinder, Pipette, Apothecary Jar, Potion Bottle, Wine Bottle, Vessel From Curve, Vase Profile | Vessel, Lathe, Vessel Shell, Liquid Fill, 8 Silhouettes | three-low-poly `vesselProfiles.ts` |
 | [Timber](../generators/timber/README.md) | `Timber.blend` | Weathered Plank, Hewn Timber | Weathered Plank, Hewn Timber; 3 wood materials | three-low-poly `WeatheredPlankGeometry`, `createHewnTimberGeometry` |
+| [Ironwork](../generators/ironwork/README.md) | `Ironwork.blend` | Picket, Post, Scroll, Panel, Twisted Bar, Fleur-de-lis, Double Scroll, Ornamental Rail, Ivy Iron, Overthrow | the same, plus Collar, Ivy Leaf, Tendril; forged and rusted iron | three-low-poly fence geometry; website graveyard and windowsill ironwork |
 | *(more porting in progress)* | | | | |
 
 ## Planned, in order
 
-1. **Ironwork**: picket, post, panel, scrolls, twists, fleur-de-lis, ivy and the overthrow (three-low-poly
-   fence geometry, plus the website's graveyard and windowsill ironwork).
-2. **Masonry**: the brick pier with alternating quoins (website graveyard).
-3. **Fences**: Path Stations, the rustic fence, the iron fence and the gateway.
-4. **Windows, Molding, Hardwood Floor**: modernized from the prototype.
+1. **Masonry**: the brick pier with alternating quoins (website graveyard).
+2. **Fences**: Path Stations, the rustic fence, the iron fence and the gateway.
+3. **Windows, Molding, Hardwood Floor**: modernized from the prototype.
 
 Origins:
 - **[three-low-poly](https://github.com/jasonsturges/three-low-poly):** the author's Three.js geometry library.
