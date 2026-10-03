@@ -93,16 +93,22 @@ documented settings; counts (members, courses, stations); seed reproducibility; 
 
 ## Studies
 
-A study is a durable investigation: it asks a question, answers it, and keeps the evidence.
+A study is a durable investigation of an **open question an upcoming asset needs answered**, like
+three-low-poly's studies (e.g. how a molding run should end at a wall). It asks the question, answers it,
+and keeps the evidence. Studies are named, not numbered.
 
 ```
-studies/<topic>/<NNN>-<name>/
+studies/<topic>/<name>/
     build.py   check.py   README.md   study.blend   preview.jpg
 ```
 
 Its README has: **Question · Explore · How it works · Verification · Limits / Next.** Studies may append
 production assets. Production never depends on a study. When a study's result becomes a product, its
 groups are **promoted** into a generator, and the study keeps its own copy as the record.
+
+Not every idea needs a scene. **How Blender works** (seeds, UVs, curve frames, booleans) belongs in
+`docs/concepts/`, written once and linked from the assets that use it. The NodesLab prototype's numbered
+studies were that kind of groundwork; they stay in that archived repo and are not ported.
 
 ## Previews
 
@@ -112,8 +118,8 @@ Builders render full-size `preview.png` (ignored by git). `python3 scripts/previ
 ## Commands
 
 ```sh
-python3 scripts/build.py <family|study-number|all> [--render]   # background Blender, dependency order
-python3 scripts/check.py <family|study-number|all>
+python3 scripts/build.py <family|study|all> [--render]   # background Blender, dependency order
+python3 scripts/check.py <family|study|all>
 python3 scripts/previews.py
 ```
 

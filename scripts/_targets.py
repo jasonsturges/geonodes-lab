@@ -44,13 +44,8 @@ def ordered(selection=None):
 
 
 def studies():
-    """{'027': directory, ...}"""
-    found = {}
-    for build in sorted((ROOT / 'studies').glob('*/*/build.py')):
-        number = build.parent.name.split('-', 1)[0]
-        if number.isdigit():
-            found[number] = build.parent
-    return found
+    """{'molding-return': directory, ...}: studies are addressed by their folder name."""
+    return {build.parent.name: build.parent for build in sorted((ROOT / 'studies').glob('*/*/build.py'))}
 
 
 def run(script, extra=()):
@@ -72,7 +67,7 @@ def run(script, extra=()):
 
 
 def resolve(targets, kind):
-    """Turn command-line targets ('all', family names, study numbers) into scripts to run."""
+    """Turn command-line targets ('all', family names, study names) into scripts to run."""
     fams, stds = families(), studies()
     scripts = []
     wanted = set(targets)
@@ -80,9 +75,9 @@ def resolve(targets, kind):
         wanted = set(fams) | set(stds)
     for family in ordered([t for t in wanted if t in fams]):
         scripts.append(ROOT / 'generators' / family / f'{kind}.py')
-    for number in sorted(t.zfill(3) for t in wanted if t.zfill(3) in stds):
-        scripts.append(stds[number] / f'{kind}.py')
-    unknown = [t for t in wanted if t not in fams and t.zfill(3) not in stds]
+    for name in sorted(t for t in wanted if t in stds):
+        scripts.append(stds[name] / f'{kind}.py')
+    unknown = [t for t in wanted if t not in fams and t not in stds]
     if unknown:
         raise SystemExit(f'Unknown target(s): {unknown}. Families: {sorted(fams)}; studies: {sorted(stds)}')
     return [s for s in scripts if s.exists()]

@@ -16,8 +16,10 @@ ported from the NodesLab prototype onto the [authoring patterns](authoring.md).
 
 ## Planned
 
-- **Studies:** a keep / port / retire inventory of the NodesLab prototype's studies, with keepers ported
-  onto these patterns.
+- **Concepts:** pages in `docs/concepts/` drawn from the prototype's groundwork (seeds and fields, UVs,
+  miters and joinery, booleans, lofts), where an asset needs the explanation.
+- **Studies:** new, named studies for open questions as assets need them, e.g. two-plane hip ends for a
+  plank floor, or a window cut into a wall.
 - **More from three-low-poly and the website:** plank, flagstone and hexagonal tile floors; walls with
   quoin patterns (alternating, balanced, straight); the piano keyboard and bells; and other factories.
 
