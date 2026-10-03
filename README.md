@@ -26,6 +26,7 @@ Libraries) and drag items in from the Asset Browser. Full walkthrough:
 | Family | File | Highlights |
 | --- | --- | --- |
 | [Vessels](generators/vessels/README.md) | `Vessels.blend` | Eight lathed glass vessels with liquid, or one from any curve you draw |
+| [Timber](generators/timber/README.md) | `Timber.blend` | A rough-sawn plank and an axe-hewn log: seeded, warped (bow, crook, cup, twist), grain that follows the wood |
 
 Every family has a ready-to-use **object**, the **node groups** behind it (for building your own
 graphs), a **gallery scene** in [`examples/`](examples/), and a **How it works** section in its README.

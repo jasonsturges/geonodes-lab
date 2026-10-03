@@ -1,3 +1,4 @@
 # Blender Asset Catalog Definition File
 VERSION 1
 efe99ded-1ffe-5c28-8b94-95b6686023e3:GeoNodes Lab/Vessels:Vessels
+72c89eb9-2b37-5acd-b8da-725eece23539:GeoNodes Lab/Timber:Timber

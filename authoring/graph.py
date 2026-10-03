@@ -15,6 +15,14 @@ class Graph:
         self.g.is_modifier = modifier
         self._index = None
 
+    @classmethod
+    def of(cls, group):
+        """Wrap an existing node group (e.g. to add panels or defaults after it is built)."""
+        graph = cls.__new__(cls)
+        graph.g = group
+        graph._index = None
+        return graph
+
     def input(self, name, kind, default=None, low=None, high=None, description=None, subtype=None):
         return socket(self.g, name, kind, default, low, high, description=description, subtype=subtype)
 
