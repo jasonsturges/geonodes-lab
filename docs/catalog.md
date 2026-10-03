@@ -11,11 +11,12 @@ ported from the NodesLab prototype onto the [authoring patterns](authoring.md).
 | [Masonry](../generators/masonry/README.md) | `Masonry.blend` | Brick Pier | Brick Pier (with a Top output); 4 materials | website graveyard `BrickPierGeometry.ts` (three-low-poly `QuoinStackGeometry`) |
 | [Fences](../generators/fences/README.md) | `Fences.blend` | Rustic Fence, Iron Fence, Gateway | Path Stations, Rustic Fence, Iron Fence, Gateway (Hewn Timber, Panel, Post, Overthrow, Brick Pier travel inside) | three-low-poly `RusticFence`; website graveyard `Enclosure.ts`, `Gateway.ts` |
 | [Windows](../generators/windows/README.md) | `Windows.blend` | Diamond Lattice, Gregorian Lattice, Window Pane, Diamond Window, Gregorian Window | the same, plus Opening Profile, Window Frame, Opening Boundary Offset | three-low-poly `ArchProfile.ts`, `DiamondLatticeWindow`, `GregorianLatticeWindow` |
+| [Molding](../generators/molding/README.md) | `Molding.blend` | Corner Molding, Surface Molding | the same, plus Corner / Surface Molding Profile | three-low-poly `MoldingProfiles.ts`, `SurfaceProfiles.ts` |
 | *(more porting in progress)* | | | | |
 
 ## Planned, in order
 
-1. **Molding, Hardwood Floor**: modernized from the prototype.
+1. **Hardwood Floor**: modernized from the prototype.
 
 Origins:
 - **[three-low-poly](https://github.com/jasonsturges/three-low-poly):** the author's Three.js geometry library.
