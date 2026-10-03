@@ -1,0 +1,3 @@
+# Blender Asset Catalog Definition File
+VERSION 1
+efe99ded-1ffe-5c28-8b94-95b6686023e3:GeoNodes Lab/Vessels:Vessels
