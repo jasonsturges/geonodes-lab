@@ -114,13 +114,32 @@ for any section. As in the SDK, an inside corner is mitered, not coped (these wa
 4. **Flip Faces** keeps normals outward for every Crown and Outward combination, and **UVMap** runs along
    the molding (distance along the path, distance around the section).
 
-**Limits, as in the SDK:** a short run between two inside corners has a floor: narrower than
-2 · projection · tan(turn / 2), the two miters overlap. Likewise a curve bent tighter than the
-projection makes the section cross itself. Neither is repaired; the request simply does not fit.
-Returns (a run dying back into the wall) and sprung crown sections are not modeled.
+**Any closed section works**, not only the named ones: the room example's walls are this same group
+with a plain rectangle projected outward, which gives them thickness and exact corners for free.
 
-## Next applications
+**Geometric limits, as the SDK documents them:** a short run between two inside corners has a floor:
+narrower than 2 · projection · tan(turn / 2), its two miters overlap. Likewise a curve bent tighter than
+the projection makes the section cross itself. Neither is repaired; the request simply does not fit, as
+molding too deep for a narrow alcove does not fit a real wall.
 
-three-low-poly's molding studies that remain open here: **returns** (a run ending back into the wall),
-**sprung** crown sections (hollow-backed, set at an angle), the **dentil cornice** and the **corbel run**.
-Each would start as a study.
+## Next: ends and other molding studies
+
+Open runs currently end with a **square cut**: the whole section shows at the end. That's the first of
+four end constructions compared in three-low-poly's `studies/molding/molding-return`, which already
+answers the question:
+
+| End | Construction | Finding |
+| --- | --- | --- |
+| Square | The run just stops | The bare end being fixed (what Molding Run does today) |
+| One path | Add a short leg back to the wall on the same run | Hides a trap: facing is judged from the run's centre, and the leg moves it |
+| Two piece | Two lengths sharing one mitered plane, as a joiner builds it | Settles facing, but a swept leg keeps a constant section, so it still ends in a full square face |
+| **Loft** | Carry every point of the run's own slanted end ring back to the wall | **The answer**: the ring already touches the wall along one edge, so the taper falls out, with no trimming; two vertices and no area remain |
+
+A **Return** option (Square / Loft) on Molding Run is a natural next step: the end ring is already on
+hand as the last row of vertices.
+
+The other three-low-poly molding studies describe further, separate work: `sprung-section` (a section
+that bridges its corner with a void behind, and the hard limit on which faces can be sprung),
+`dentil-cornice` (dentils and modillions laid out by width and gap, anchored at corners) and
+`corbel-run` (staggered three-point brackets, centred so the remainder splits between both ends).
+`curved-runs` and `inside-and-outside-corners` are covered by Molding Run and the room example.

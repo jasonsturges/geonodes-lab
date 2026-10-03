@@ -126,8 +126,10 @@ def room_plan():
     return data
 
 
-def walls_group(height, plaster):
-    """Scene dressing for the room example (not an asset): plain walls standing on the plan curve."""
+def walls_group(height, thickness, plaster):
+    """Scene dressing for the room example (not an asset): the walls are Molding Run too, with a plain
+    rectangle as the section, projected OUTWARD (behind the room). So they have real thickness, every
+    corner mitered, and they follow the same plan as the moldings."""
     G = Graph('Room walls • example only', modifier=True)
     G.input('Geometry', 'NodeSocketGeometry')
     G.input('Plan', 'NodeSocketObject')
@@ -135,12 +137,15 @@ def walls_group(height, plaster):
     G.finish_io()
     info = G.n('GeometryNodeObjectInfo', 'Plan', transform_space='RELATIVE')
     G.link(G.i['Plan'], info.inputs['Object'])
-    edges = G.n('GeometryNodeCurveToMesh', 'Plan as edges')
-    G.link(info.outputs['Geometry'], edges.inputs['Curve'])
-    up = G.n('GeometryNodeExtrudeMesh', 'Raise the walls', mode='EDGES')
-    G.link(edges.outputs[0], up.inputs['Mesh'])
-    G.link(G.xyz(0, 0, height), up.inputs['Offset'])   # a link: Offset otherwise defaults to the edge normals
-    G.link(G.material(up.outputs['Mesh'], plaster), G.o['Geometry'])
+    section = G.n('GeometryNodeCurvePrimitiveQuadrilateral', 'Wall section: height × thickness')
+    section.inputs['Width'].default_value, section.inputs['Height'].default_value = height, thickness
+    section = G.transform(section.outputs[0], (height / 2, thickness / 2, 0), label='Back on the plan line')
+    run = G.group(bpy.data.node_groups[named('Molding Run')], 'Molding Run')
+    G.link(info.outputs['Geometry'], run.inputs['Path'])
+    G.link(section, run.inputs['Section'])
+    run.inputs['Crown'].default_value = False
+    run.inputs['Outward'].default_value = True
+    G.link(G.material(run.outputs[0], plaster), G.o['Geometry'])
     G.layout()
     return G.g
 
@@ -172,7 +177,7 @@ def room():
     walls = bpy.data.objects.new('Walls • example only', bpy.data.meshes.new('Walls'))
     scene.collection.objects.link(walls)
     mod = walls.modifiers.new('Walls', 'NODES')
-    mod.node_group = walls_group(height, principled('Wall • Sage Plaster', (.16, .22, .18), roughness=.85))
+    mod.node_group = walls_group(height, .12, principled('Wall • Sage Plaster', (.16, .22, .18), roughness=.85))
     set_input(mod, 'Plan', scene.objects['Base path • edit the room plan'])
     for text, location in (('INSIDE CORNER', (-1.35, 1.15)), ('CHIMNEY BREAST', (0, .7)), ('CURVED BAY', (1.55, 0)),
                            ('OPEN END • SQUARE CUT', (-1.3, -1.25))):
