@@ -56,6 +56,6 @@ See [How this is built](docs/authoring.md).
 
 Blender **5.2** or newer.
 
-## License
+## Author
 
-[ISC](LICENSE.md): use it for anything; keep the notice.
+Jason Sturges
