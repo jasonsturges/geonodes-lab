@@ -32,6 +32,7 @@ Libraries) and drag items in from the Asset Browser. Full walkthrough:
 | [Fences](generators/fences/README.md) | `Fences.blend` | Rustic and iron fences that follow any curve and settle onto your terrain, and a full gateway; one Ruin control |
 | [Windows](generators/windows/README.md) | `Windows.blend` | Named arch openings (seven styles), diamond and Gregorian lattices, exact-fit glass and assembled windows |
 | [Molding](generators/molding/README.md) | `Molding.blend` | Fifteen named corner and surface sections, as profile curves and straight runs (crown or base) |
+| [Floors](generators/floors/README.md) | `Floors.blend` | Hardwood boards laid at any angle and clipped to your room, with seeded layout and color |
 
 Every family has a ready-to-use **object**, the **node groups** behind it (for building your own
 graphs), a **gallery scene** in [`examples/`](examples/), and a **How it works** section in its README.

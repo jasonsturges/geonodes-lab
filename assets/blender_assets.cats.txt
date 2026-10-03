@@ -7,3 +7,4 @@ fc23db6f-3add-5891-bd70-b677ca884dcd:GeoNodes Lab/Masonry:Masonry
 5457cd23-0a36-5f37-a7c5-9a3f38e28fbb:GeoNodes Lab/Fences:Fences
 5019cf1d-3369-5b29-aad2-445c6416f589:GeoNodes Lab/Windows:Windows
 78209990-0e4a-58f6-9632-07a9a28dc1c0:GeoNodes Lab/Molding:Molding
+af897973-1ed2-51ea-b59c-f8208cff6f03:GeoNodes Lab/Floors:Floors
